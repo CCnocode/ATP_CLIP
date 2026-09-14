@@ -51,7 +51,7 @@ The framework incorporates structured behavioral descriptions to provide semanti
 ## 🏗️ Framework
 
 <p align="center">
-  <img src="figures/framework.png" alt="ATP-CLIP Framework" width="100%">
+  <img src="overall framework.png" alt="ATP-CLIP Framework" width="100%">
 </p>
 
 <div align="justify">

@@ -12,11 +12,9 @@
 
 <div align="justify">
 
-**ATP-CLIP** is a vision–language framework for automated atypical behavior analysis in **Autism Spectrum Disorder (ASD)**. It is designed for scenarios where labeled behavioral data are limited, while the target behaviors are subtle, temporally complex, and clinically meaningful.
+**ATP-CLIP** is a vision–language framework for automated atypical behavior analysis in **Autism Spectrum Disorder (ASD)**. It is designed for settings with limited labeled video data, where target behaviors often involve subtle motion patterns and long temporal dependencies. ATP-CLIP jointly models visual features and structured text descriptions in a shared vision–language embedding space for behavior recognition and retrieval.
 
-Different from conventional approaches that primarily focus on short and pre-segmented video clips, ATP-CLIP supports **few-shot behavior recognition** and **cross-modal retrieval** in more realistic behavioral analysis scenarios. By jointly modeling visual evidence and structured textual descriptions, the framework establishes a semantically meaningful connection between observed behavioral patterns and their corresponding descriptions.
-
-In addition to the ATP-CLIP framework, this work introduces **MVLASD**, a multimodal vision–language dataset designed for long-form atypical behavior analysis in ASD.
+Different from conventional ASD video analysis methods that mainly process short and pre-segmented clips, ATP-CLIP supports **few-shot behavior recognition** and **cross-modal retrieval** for long-form video analysis. The framework is developed together with **MVLASD**, a multimodal vision–language dataset containing naturalistic interaction videos, temporal behavior annotations, and clinician-validated text descriptions.
 
 </div>
 
@@ -26,23 +24,9 @@ In addition to the ATP-CLIP framework, this work introduces **MVLASD**, a multim
 
 <div align="justify">
 
-🎥 **Vision–Language Learning for ASD Analysis**  
-ATP-CLIP jointly models video content and behavior-related textual descriptions to establish a shared visual–semantic representation for atypical behavior understanding.
+🎥 **Vision–Language Learning for ASD Analysis** aligns video features with behavior-related text representations in a shared embedding space. ⏱️ **Temporal Attention Pooling (TAP)** aggregates frame-level features with learnable temporal weights to capture informative motion patterns, while 📝 **Hierarchical Text Prompting** represents each behavior using class-level, behavior-level, and clinical-level descriptions.
 
-⏱️ **Temporal Attention Pooling (TAP)**  
-The Temporal Attention Pooling module dynamically aggregates informative temporal cues from video sequences and emphasizes behaviorally relevant moments.
-
-📝 **Hierarchical Text Prompting**  
-Behavior semantics are represented through multiple levels of textual descriptions, allowing the model to align visual observations with category-level, behavioral, and clinically related semantic information.
-
-🧩 **Few-Shot Adaptation**  
-A prototype-based transfer strategy enables the framework to recognize novel behavior categories using only a limited number of labeled examples.
-
-🔎 **Cross-Modal Retrieval**  
-ATP-CLIP supports both video-to-text and text-to-video retrieval, enabling semantic search and behavioral episode retrieval across visual and textual modalities.
-
-🏥 **Clinically Grounded Behavior Representation**  
-The framework incorporates structured behavioral descriptions to provide semantically interpretable representations that are relevant to ASD behavior analysis.
+🧩 **Few-Shot Adaptation** enables transfer from base classes to novel behavior classes using a small support set and prototype-based inference. 🔎 **Cross-Modal Retrieval** supports both video-to-text and text-to-video matching, while 🏥 **Clinically Grounded Text Representation** introduces structured behavior descriptions into the vision–language learning process.
 
 </div>
 
@@ -56,7 +40,9 @@ The framework incorporates structured behavioral descriptions to provide semanti
 
 <div align="justify">
 
-The overall architecture of **ATP-CLIP** is illustrated above. The framework contains two parallel vision and language processing branches that are subsequently aligned in a shared embedding space for behavior classification and cross-modal retrieval.
+The overall architecture of **ATP-CLIP** contains a visual branch and a text branch that are aligned in a shared embedding space. The visual branch extracts frame-level features using the CLIP visual encoder and applies temporal modeling to generate a video representation, while the text branch encodes hierarchical behavior descriptions using the CLIP text encoder and lightweight adapters.
+
+The resulting visual and text embeddings are optimized through similarity-based objectives and are used for both behavior classification and cross-modal retrieval. This shared representation allows ATP-CLIP to use the same vision–language feature space for standard classification, few-shot transfer, and bidirectional video–text matching.
 
 </div>
 
@@ -64,9 +50,9 @@ The overall architecture of **ATP-CLIP** is illustrated above. The framework con
 
 <div align="justify">
 
-The textual branch represents each atypical behavior using hierarchical descriptions with progressively richer semantic information. Instead of relying only on behavior category names, the framework constructs three levels of prompts corresponding to the behavior class, descriptive behavioral characteristics, and clinically related descriptions.
+The text branch represents each atypical behavior with three levels of prompts: the behavior class, the observable behavior description, and the clinical description. Compared with using only class names, this hierarchical prompt design provides richer text supervision and introduces different levels of semantic information during vision–language alignment.
 
-These prompts are encoded using the CLIP text encoder and subsequently adapted through lightweight **W-Adapters**. The resulting textual representations preserve the general semantic knowledge of the pretrained vision–language model while introducing task-specific behavioral information.
+Each prompt is encoded by the pretrained CLIP text encoder and further processed by a lightweight **W-Adapter**. The adapted text embeddings are then aligned with visual features in the shared embedding space, allowing the model to learn task-specific behavior representations while keeping the pretrained CLIP encoders frozen.
 
 </div>
 
@@ -74,9 +60,9 @@ These prompts are encoded using the CLIP text encoder and subsequently adapted t
 
 <div align="justify">
 
-The visual branch processes sampled video frames using a pretrained CLIP visual encoder. The resulting frame-wise features are passed to the **Temporal Attention Pooling (TAP)** module, which dynamically estimates the importance of different temporal observations.
+The visual branch first encodes sampled video frames with a pretrained CLIP visual encoder to obtain a sequence of frame-level features. These features are passed to the **Temporal Attention Pooling (TAP)** module, which combines local temporal modeling with global frame similarity to estimate the importance of each frame.
 
-TAP combines local temporal information with broader frame-level relationships, allowing the model to emphasize behaviorally informative moments while suppressing less relevant visual content. The aggregated representation forms the final visual embedding used for cross-modal alignment.
+The learned temporal weights are used to aggregate the frame features into a single video embedding. This design allows ATP-CLIP to capture both short-term motion patterns and longer temporal context while reducing the effect of less informative frames.
 
 </div>
 
@@ -84,9 +70,9 @@ TAP combines local temporal information with broader frame-level relationships, 
 
 <div align="justify">
 
-The visual and textual embeddings are projected into a shared semantic space, where their correspondence is optimized through similarity-based learning. This joint representation allows ATP-CLIP to associate observed behavioral patterns with different levels of textual semantics.
+ATP-CLIP maps visual and text features into the same embedding space and learns their correspondence using similarity-based objectives. During training, video representations are aligned with hierarchical text prompts so that samples from the same behavior class have higher visual–text similarity than mismatched pairs.
 
-The learned embedding space is subsequently used for both **behavior classification** and **cross-modal retrieval**, enabling a unified framework for recognizing atypical behaviors and retrieving semantically related behavioral information.
+The learned embedding space is shared by **behavior classification** and **cross-modal retrieval**. For classification, predictions are based on similarities between video features and class representations, while retrieval ranks videos or text descriptions according to their cross-modal similarity.
 
 </div>
 
@@ -96,9 +82,9 @@ The learned embedding space is subsequently used for both **behavior classificat
 
 <div align="justify">
 
-This work introduces **MVLASD**, a multimodal vision–language dataset for atypical behavior analysis in ASD. The dataset is collected from naturalistic parent–child interaction sessions and contains long-form video recordings together with clinician-validated temporal annotations and behavioral descriptions.
+This work introduces **MVLASD**, a multimodal vision–language dataset for atypical behavior analysis in ASD. The dataset contains long-form naturalistic parent–child interaction videos together with episode-level temporal annotations and clinician-validated behavior descriptions, providing aligned visual and text data for multimodal learning.
 
-Unlike conventional ASD video datasets that primarily consist of short and pre-segmented clips, MVLASD preserves longer interaction contexts and provides multimodal semantic information suitable for both classification and retrieval tasks.
+Unlike existing datasets that mainly contain short behavior clips, MVLASD preserves longer temporal context and supports both behavior classification and cross-modal retrieval. The dataset is used to evaluate few-shot transfer, long-form video understanding, and video–text alignment in ASD behavior analysis.
 
 </div>
 
@@ -106,12 +92,12 @@ Unlike conventional ASD video datasets that primarily consist of short and pre-s
 
 <div align="justify">
 
-- 👦 Naturalistic parent–child interaction scenarios
-- 🎥 Long-form behavioral video recordings
+- 👦 Naturalistic parent–child interaction videos
+- 🎥 Long-form video recordings
 - 🏷️ Episode-level temporal annotations
-- 👩‍⚕️ Clinician-involved behavioral annotation
-- 📝 Behavioral descriptions aligned with video episodes
-- 🔎 Support for both classification and retrieval tasks
+- 👩‍⚕️ Clinician-validated behavior labels
+- 📝 Text descriptions aligned with behavior episodes
+- 🔎 Support for classification and cross-modal retrieval
 
 </div>
 
@@ -119,7 +105,7 @@ Unlike conventional ASD video datasets that primarily consist of short and pre-s
 
 <div align="justify">
 
-MVLASD contains five categories of atypical behaviors:
+MVLASD contains five atypical behavior categories:
 
 - **Tantrum**
 - **Spinning**
@@ -132,7 +118,7 @@ MVLASD contains five categories of atypical behaviors:
 > ⚠️ **Privacy Notice**
 >
 > <div align="justify">
-> MVLASD contains video recordings of minors and therefore cannot be publicly released. Research access may be considered upon reasonable request and is subject to institutional ethical approval and applicable data-protection requirements.
+> MVLASD contains video recordings of minors and is therefore not publicly released. Research access may be provided upon reasonable request and is subject to institutional ethics approval and data protection requirements.
 > </div>
 
 ---
@@ -143,9 +129,9 @@ MVLASD contains five categories of atypical behaviors:
 
 <div align="justify">
 
-Given an input behavioral video, ATP-CLIP maps the visual representation into the learned vision–language embedding space and predicts the corresponding atypical behavior category.
+For behavior classification, ATP-CLIP encodes an input video into the shared vision–language embedding space and predicts its behavior category based on similarity to class representations. The same feature space is used across training and inference, avoiding a separate task-specific classifier for each novel class.
 
-The framework supports both conventional classification and few-shot transfer settings, allowing previously unseen behavior categories to be recognized using a limited support set.
+ATP-CLIP also supports **base-to-novel few-shot transfer**. The model is trained on base behavior classes and evaluated on unseen novel classes using a small support set, where class prototypes are constructed from visual support features and text embeddings.
 
 </div>
 
@@ -153,10 +139,8 @@ The framework supports both conventional classification and few-shot transfer se
 
 <div align="justify">
 
-ATP-CLIP additionally supports bidirectional retrieval between behavioral videos and textual descriptions.
+ATP-CLIP supports bidirectional retrieval between videos and text descriptions. **Video-to-Text (V2T)** retrieval ranks text descriptions according to their similarity to a query video, while **Text-to-Video (T2V)** retrieval ranks video segments using a text query.
 
-**Video-to-Text (V2T)** retrieves relevant behavioral or clinical descriptions using a video query, while **Text-to-Video (T2V)** retrieves relevant behavioral video segments using textual descriptions as queries.
-
-This capability enables semantic navigation of behavioral recordings and facilitates the identification of video segments associated with specific behavioral descriptions.
+Both retrieval tasks operate in the same shared embedding space used for classification. This allows the model to directly match behavior videos with structured text descriptions without introducing a separate retrieval network.
 
 </div>
